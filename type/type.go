@@ -1,4 +1,4 @@
-module staticplugintype
+package staticplugintype
 
 import (
 	"embed"
