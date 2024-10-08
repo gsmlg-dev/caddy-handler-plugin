@@ -16,9 +16,7 @@ import (
 
 	"github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
-	caddycmd "github.com/caddyserver/caddy/v2/cmd"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
-	"github.com/caddyserver/certmagic"
 
 	"go.uber.org/zap"
 
@@ -513,7 +511,7 @@ func parseCaddyfile(h httpcaddyfile.Helper) (caddyhttp.MiddlewareHandler, error)
 		for h.NextBlock(0) {
 			switch h.Val() {
 			case "plugin_path":
-				pluginPath = h.RemainingArgs()
+				pluginPath := h.RemainingArgs()
 				if len(fsrv.PluginPath) != 1 {
 					return nil, h.ArgErr()
 				} else {
