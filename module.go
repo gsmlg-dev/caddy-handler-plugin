@@ -514,7 +514,7 @@ func parseCaddyfile(h httpcaddyfile.Helper) (caddyhttp.MiddlewareHandler, error)
 				if !h.NextArg() {
 					return nil, h.ArgErr()
 				}
-				fsrv.PluginPath = caddyhttp.WeakString(h.Val())
+				fsrv.PluginPath = h.Val()
 
 			case "hide":
 				fsrv.Hide = h.RemainingArgs()
