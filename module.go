@@ -34,7 +34,7 @@ func init() {
 // StaticPlugin implements a static file server responder for Caddy.
 type StaticPlugin struct {
 	PluginPath string `json:"plugin_path,omitempty"`
-	staticFS *plugintype.StaticFS
+	staticFS   *plugintype.StaticFS
 	// A list of files or folders to hide; the file server will pretend as if
 	// they don't exist. Accepts globular patterns like `*.ext` or `/foo/*/bar`
 	// as well as placeholders. Because site roots can be dynamic, this list
@@ -104,7 +104,6 @@ func (fsrv *StaticPlugin) Provision(ctx caddy.Context) error {
 
 	return fsrv.openPlugin()
 }
-
 
 func (fsrv *StaticPlugin) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
 	repl := r.Context().Value(caddy.ReplacerCtxKey).(*caddy.Replacer)
@@ -356,7 +355,7 @@ func (fsrv *StaticPlugin) ServeHTTP(w http.ResponseWriter, r *http.Request, next
 // returned error value).
 func (fsrv *StaticPlugin) openPlugin() error {
 	if fsrv.PluginPath == "" {
-		return fmt.Errorf("plugin_path is required")
+		return fmt.Errorf("plugin_path is required %s", fsrv.PluginPath)
 	} else {
 		p, err := plugin.Open(fsrv.PluginPath)
 		if err != nil {
@@ -366,7 +365,7 @@ func (fsrv *StaticPlugin) openPlugin() error {
 		if err != nil {
 			return fmt.Errorf("can not find function `New` in plugin: %v", err)
 		}
-		fsrv.staticFS = f.(func() *plugintype.StaticFS)()
+		fsrv.staticFS * plugintype.StaticFS = f.(func())()
 		return nil
 	}
 }
@@ -496,14 +495,13 @@ func (fsrv *StaticPlugin) notFound(w http.ResponseWriter, r *http.Request, next 
 // parseCaddyfile parses the static_site directive. It enables the static file
 // server and configures it with this syntax:
 //
-//    static_site [<matcher>] [browse] {
-//        hide          <files...>
-//        index         <files...>
-//        precompressed <formats...>
-//        status        <status>
-//        disable_canonical_uris
-//    }
-//
+//	static_site [<matcher>] [browse] {
+//	    hide          <files...>
+//	    index         <files...>
+//	    precompressed <formats...>
+//	    status        <status>
+//	    disable_canonical_uris
+//	}
 func parseCaddyfile(h httpcaddyfile.Helper) (caddyhttp.MiddlewareHandler, error) {
 	var fsrv StaticPlugin
 
