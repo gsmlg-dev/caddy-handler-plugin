@@ -8,9 +8,9 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
-	"plugin"
 	"strconv"
 	"strings"
 
@@ -21,6 +21,7 @@ import (
 	"go.uber.org/zap"
 
 	plugintype "github.com/gsmlg-dev/caddy-static-plugin/type"
+	"github.com/hashicorp/go-plugin"
 )
 
 const DirectiveName = "static_plugin"
@@ -34,7 +35,7 @@ func init() {
 // StaticPlugin implements a static file server responder for Caddy.
 type StaticPlugin struct {
 	PluginPath string `json:"plugin_path,omitempty"`
-	staticFS *plugintype.StaticFS
+	staticFS   *plugintype.StaticFS
 	// A list of files or folders to hide; the file server will pretend as if
 	// they don't exist. Accepts globular patterns like `*.ext` or `/foo/*/bar`
 	// as well as placeholders. Because site roots can be dynamic, this list
@@ -104,7 +105,6 @@ func (fsrv *StaticPlugin) Provision(ctx caddy.Context) error {
 
 	return fsrv.openPlugin()
 }
-
 
 func (fsrv *StaticPlugin) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
 	repl := r.Context().Value(caddy.ReplacerCtxKey).(*caddy.Replacer)
@@ -358,15 +358,41 @@ func (fsrv *StaticPlugin) openPlugin() error {
 	if fsrv.PluginPath == "" {
 		return fmt.Errorf("plugin_path is required")
 	} else {
-		p, err := plugin.Open(fsrv.PluginPath)
-		if err != nil {
-			return fmt.Errorf("can not load plugin at %s: %v", fsrv.PluginPath, err)
+		// handshakeConfigs are used to just do a basic handshake between
+		// a plugin and host. If the handshake fails, a user friendly error is shown.
+		// This prevents users from executing bad plugins or executing a plugin
+		// directory. It is a UX feature, not a security feature.
+		var handshakeConfig = plugin.HandshakeConfig{
+			ProtocolVersion:  1,
+			MagicCookieKey:   "BASIC_PLUGIN",
+			MagicCookieValue: "hello",
 		}
-		f, err := p.Lookup("New")
+
+		// pluginMap is the map of plugins we can dispense.
+		var pluginMap = map[string]plugin.Plugin{}
+
+		client := plugin.NewClient(&plugin.ClientConfig{
+			HandshakeConfig: handshakeConfig,
+			Plugins:         pluginMap,
+			Cmd:             exec.Command(fsrv.PluginPath),
+			// Logger:          fsrv.logger,
+		})
+		// Connect via RPC
+		rpcClient, err := client.Client()
 		if err != nil {
-			return fmt.Errorf("can not find function `New` in plugin: %v", err)
+			return err
 		}
-		fsrv.staticFS = f.(func() *plugintype.StaticFS)()
+
+		// Request the plugin
+		raw, err := rpcClient.Dispense("New")
+		if err != nil {
+			return err
+		}
+
+		// We should have a Greeter now! This feels like a normal interface
+		// implementation but is in fact over an RPC connection.
+		f := raw.(plugintype.StaticFS)
+		fsrv.staticFS = &f
 		return nil
 	}
 }
@@ -496,14 +522,13 @@ func (fsrv *StaticPlugin) notFound(w http.ResponseWriter, r *http.Request, next 
 // parseCaddyfile parses the static_site directive. It enables the static file
 // server and configures it with this syntax:
 //
-//    static_site [<matcher>] [browse] {
-//        hide          <files...>
-//        index         <files...>
-//        precompressed <formats...>
-//        status        <status>
-//        disable_canonical_uris
-//    }
-//
+//	static_site [<matcher>] [browse] {
+//	    hide          <files...>
+//	    index         <files...>
+//	    precompressed <formats...>
+//	    status        <status>
+//	    disable_canonical_uris
+//	}
 func parseCaddyfile(h httpcaddyfile.Helper) (caddyhttp.MiddlewareHandler, error) {
 	var fsrv StaticPlugin
 
