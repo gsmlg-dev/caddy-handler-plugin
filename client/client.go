@@ -11,9 +11,8 @@ import (
 )
 
 type HandlerClient struct {
-	client    *plugin.Client
-	rpcClient plugin.ClientProtocol
-	handler   *shared.HandlerRPC
+	client  *plugin.Client
+	handler *shared.HandlerRPC
 }
 
 func (c *HandlerClient) Kill() {
@@ -21,7 +20,34 @@ func (c *HandlerClient) Kill() {
 }
 
 func (c *HandlerClient) Serve(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
-	return c.handler.Serve(w, r, next)
+	q := shared.PluginQuery{
+		// Config: r.URL.Query(),
+		Path:   r.URL.Path,
+		Header: r.Header,
+	}
+
+	reply, err := c.handler.Serve(q)
+	if err != nil {
+		return err
+	}
+
+	if reply.Done {
+		if reply.Status > 0 {
+			w.WriteHeader(reply.Status)
+		}
+		for k, v := range reply.Header {
+			for i, v := range v {
+				if i == 0 {
+					w.Header().Set(k, v)
+				} else {
+					w.Header().Add(k, v)
+				}
+			}
+		}
+		w.Write(reply.Body)
+		return nil
+	}
+	return next.ServeHTTP(w, r)
 }
 
 func New(path string) (*HandlerClient, error) {
@@ -47,8 +73,7 @@ func New(path string) (*HandlerClient, error) {
 	}
 
 	return &HandlerClient{
-		client:    client,
-		rpcClient: rpcClient,
-		handler:   h.(*shared.HandlerRPC),
+		client:  client,
+		handler: h.(*shared.HandlerRPC),
 	}, err
 }

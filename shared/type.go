@@ -6,6 +6,12 @@ import (
 	"github.com/hashicorp/go-plugin"
 )
 
+type PluginQuery struct {
+	Config map[string][]string
+	Path   string
+	Header http.Header
+}
+
 type PluginReply struct {
 	Done   bool
 	Status int
