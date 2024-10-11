@@ -1,7 +1,4 @@
-// Copyright (c) HashiCorp, Inc.
-// SPDX-License-Identifier: MPL-2.0
-
-package main
+package server
 
 import (
 	"net/http"
