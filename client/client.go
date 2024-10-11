@@ -13,7 +13,7 @@ import (
 type HandlerClient struct {
 	client    *plugin.Client
 	rpcClient plugin.ClientProtocol
-	handler   shared.HandlerRPC
+	handler   *shared.HandlerRPC
 }
 
 func (c *HandlerClient) Kill() {
@@ -49,6 +49,6 @@ func New(path string) (*HandlerClient, error) {
 	return &HandlerClient{
 		client:    client,
 		rpcClient: rpcClient,
-		handler:   h.(shared.HandlerRPC),
+		handler:   h.(*shared.HandlerRPC),
 	}, err
 }

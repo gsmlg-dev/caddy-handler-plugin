@@ -49,8 +49,10 @@ Load plugin in `Caddyfile`
 
 ```caddyfile
 localhost:8080 {
-    handler_plugin {
-        plugin_path "hanlder.bin"
+    route {
+        handler_plugin {
+            plugin_path "hanlder.bin"
+        }
     }
 }
 ```
