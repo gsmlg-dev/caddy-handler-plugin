@@ -82,12 +82,10 @@ func parseCaddyfile(h httpcaddyfile.Helper) (caddyhttp.MiddlewareHandler, error)
 		for h.NextBlock(0) {
 			switch h.Val() {
 			case "plugin_path":
-				pluginPath := h.RemainingArgs()
-				if len(chp.PluginPath) != 1 {
+				if !h.NextArg() {
 					return nil, h.ArgErr()
-				} else {
-					chp.PluginPath = pluginPath[0]
 				}
+				chp.PluginPath = h.Val()
 
 			default:
 				return nil, h.Errf("unknown subdirective '%s'", h.Val())
