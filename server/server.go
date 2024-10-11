@@ -12,6 +12,7 @@ type HandlerServer struct {
 
 func (g *HandlerServer) Serve(r http.Request, reply *shared.PluginReply) error {
 	reply.Done = false
+	reply.Body = []byte("Hello!")
 	return nil
 }
 

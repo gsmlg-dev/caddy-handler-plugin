@@ -24,12 +24,12 @@ type HandlerServer struct {
 func (g *HandlerServer) Serve(r http.Request, reply *shared.PluginReply) error {
   reply.Done = true
   reply.Header.Set("Content-Type", "text/plain")
-  reply.Body = []bytes("Hello World")
+  reply.Body = []byte("Hello World")
   return nil
 }
 
 main() {
-    handler = &HandlerServer{}
+    handler := &HandlerServer{}
     server.New(handler)
 }
 ```
