@@ -1,7 +1,6 @@
 package shared
 
 import (
-	"io"
 	"net/http"
 	"net/url"
 
@@ -9,26 +8,31 @@ import (
 )
 
 type PluginQuery struct {
-	Config    map[string][]string
-	Method    string
-	URL       url.URL
-	URLBinary []byte
-	Proto     string
-	Host      string
-	Header    http.Header
-	Body      io.ReadCloser
+	Method           string
+	URL              *url.URL
+	Proto            string
+	Host             string
+	Header           http.Header
+	RemoteAddr       string
+	TransferEncoding []string
+	RequestURI       string
+	// Body             []byte
 }
 
 func CreatePluginQuery(r *http.Request) PluginQuery {
-	rUrl, _ := r.URL.MarshalBinary()
+	// var body []byte
+	// r.Body.Read(body)
+
 	return PluginQuery{
-		Config:    r.URL.Query(),
-		Method:    r.Method,
-		URLBinary: rUrl,
-		Proto:     r.Proto,
-		Host:      r.Host,
-		Header:    r.Header,
-		Body:      r.Body,
+		Method:           r.Method,
+		URL:              r.URL,
+		Proto:            r.Proto,
+		Host:             r.Host,
+		Header:           r.Header,
+		RemoteAddr:       r.RemoteAddr,
+		TransferEncoding: r.TransferEncoding,
+		RequestURI:       r.RequestURI,
+		// Body:             body,
 	}
 }
 

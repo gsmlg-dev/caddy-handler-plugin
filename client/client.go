@@ -19,6 +19,10 @@ func (c *HandlerClient) Kill() {
 	c.client.Kill()
 }
 
+func (c *HandlerClient) SetConfig(cfg map[string][]string) (bool, error) {
+	return c.handler.SetConfig(cfg)
+}
+
 func (c *HandlerClient) Serve(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
 	q := shared.CreatePluginQuery(r)
 

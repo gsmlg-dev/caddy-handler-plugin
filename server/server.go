@@ -7,10 +7,17 @@ import (
 	"github.com/hashicorp/go-plugin"
 )
 
-type HandlerServer struct {
+type HandlerServerDefault struct {
+	Config map[string][]string
 }
 
-func (g *HandlerServer) Serve(q shared.PluginQuery, reply *shared.PluginReply) error {
+func (g *HandlerServerDefault) SetConfig(cfg map[string][]string, ok *bool) error {
+	g.Config = cfg
+	*ok = true
+	return nil
+}
+
+func (g *HandlerServerDefault) Serve(q shared.PluginQuery, reply *shared.PluginReply) error {
 	reply.Done = true
 	header := http.Header{}
 	header.Set("Content-Type", "text/plain")
