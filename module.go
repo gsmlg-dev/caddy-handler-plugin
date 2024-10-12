@@ -69,8 +69,7 @@ func (chp *CaddyHandlerPlugin) unloadPlugin() error {
 	return nil
 }
 
-// parseCaddyfile parses the handler_plugin directive. It enables the static file
-// server and configures it with this syntax:
+// parseCaddyfile parses the handler_plugin directive.
 //
 //	handler_plugin {
 //	  plugin_path   <path>

@@ -10,9 +10,12 @@ import (
 type HandlerServer struct {
 }
 
-func (g *HandlerServer) Serve(r http.Request, reply *shared.PluginReply) error {
-	reply.Done = false
-	reply.Body = []byte("Hello!")
+func (g *HandlerServer) Serve(q shared.PluginQuery, reply *shared.PluginReply) error {
+	reply.Done = true
+	header := http.Header{}
+	header.Set("Content-Type", "text/plain")
+	reply.Header = header
+	reply.Body = []byte("Hello World")
 	return nil
 }
 

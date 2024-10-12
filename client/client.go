@@ -20,11 +20,7 @@ func (c *HandlerClient) Kill() {
 }
 
 func (c *HandlerClient) Serve(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
-	q := shared.PluginQuery{
-		// Config: r.URL.Query(),
-		Path:   r.URL.Path,
-		Header: r.Header,
-	}
+	q := shared.CreatePluginQuery(r)
 
 	reply, err := c.handler.Serve(q)
 	if err != nil {
