@@ -9,25 +9,26 @@ import (
 )
 
 type PluginQuery struct {
-	Config map[string][]string
-	Method string
-	URL    url.URL
-	Proto  string
-	Host   string
-	Header http.Header
-	Body   io.ReadCloser
+	Config    map[string][]string
+	Method    string
+	URL       url.URL
+	URLBinary []byte
+	Proto     string
+	Host      string
+	Header    http.Header
+	Body      io.ReadCloser
 }
 
 func CreatePluginQuery(r *http.Request) PluginQuery {
-	url := *r.URL
+	rUrl, _ := r.URL.MarshalBinary()
 	return PluginQuery{
-		Config: r.URL.Query(),
-		Method: r.Method,
-		URL:    url,
-		Proto:  r.Proto,
-		Host:   r.Host,
-		Header: r.Header,
-		Body:   r.Body,
+		Config:    r.URL.Query(),
+		Method:    r.Method,
+		URLBinary: rUrl,
+		Proto:     r.Proto,
+		Host:      r.Host,
+		Header:    r.Header,
+		Body:      r.Body,
 	}
 }
 
