@@ -26,9 +26,19 @@ type HandlerServer struct {
 func (g *HandlerServer) Serve(q shared.PluginQuery, reply *shared.PluginReply) error {
   reply.Done = true
   header := http.Header{}
+  header.Set("Server-Handler", "Custom Caddy Handler")
   header.Set("Content-Type", "text/plain")
   reply.Header = header
-  out := fmt.Sprintf(`Hello World with config %v`, g.Config)
+  out := fmt.Sprintf(`Hello World
+
+  * with Query:
+
+  %v
+
+  * with Config:
+
+  %v
+`, q, g.Config)
   reply.Body = []byte(out)
   return nil
 }

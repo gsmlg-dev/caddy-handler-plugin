@@ -31,23 +31,7 @@ func (c *HandlerClient) Serve(w http.ResponseWriter, r *http.Request, next caddy
 		return err
 	}
 
-	if reply.Done {
-		if reply.Status > 0 {
-			w.WriteHeader(reply.Status)
-		}
-		for k, v := range reply.Header {
-			for i, v := range v {
-				if i == 0 {
-					w.Header().Set(k, v)
-				} else {
-					w.Header().Add(k, v)
-				}
-			}
-		}
-		w.Write(reply.Body)
-		return nil
-	}
-	return next.ServeHTTP(w, r)
+	return reply.Serve(w, r, next)
 }
 
 func New(path string) (*HandlerClient, error) {
