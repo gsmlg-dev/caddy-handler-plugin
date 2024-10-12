@@ -12,27 +12,30 @@ Create handler plugin
 package main
 
 import (
-    "net/http"    
+    "fmt"
+    "net/http"
 
     "github.com/gsmlg-dev/caddy-handler-plugin/shared"
     "github.com/gsmlg-dev/caddy-handler-plugin/server"
 )
 
 type HandlerServer struct {
+    server.HandlerServerDefault
 }
 
 func (g *HandlerServer) Serve(q shared.PluginQuery, reply *shared.PluginReply) error {
-    reply.Done = true
-    header := http.Header{}
-    header.Set("Content-Type", "text/plain")
-    reply.Header = header
-    reply.Body = []byte("Hello World")
-    return nil
+  reply.Done = true
+  header := http.Header{}
+  header.Set("Content-Type", "text/plain")
+  reply.Header = header
+  out := fmt.Sprintf(`Hello World with config %v`, g.Config)
+  reply.Body = []byte(out)
+  return nil
 }
 
 func main() {
-    handler := &HandlerServer{}
-    server.New(handler)
+        handler := &HandlerServer{}
+        server.New(handler)
 }
 ```
 
@@ -51,10 +54,9 @@ Load plugin in `Caddyfile`
 
 ```caddyfile
 localhost:8080 {
-    route {
-        handler_plugin {
-            plugin_path "hanlder.bin"
-        }
+    handler_plugin "/caddy-plugins/hanlder.bin" {
+        name "web handler"
+        pass_next_if_not_match false
     }
 }
 ```
