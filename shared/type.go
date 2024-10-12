@@ -19,10 +19,11 @@ type PluginQuery struct {
 }
 
 func CreatePluginQuery(r *http.Request) PluginQuery {
+	url := *r.URL
 	return PluginQuery{
 		Config: r.URL.Query(),
 		Method: r.Method,
-		URL:    *r.URL,
+		URL:    url,
 		Proto:  r.Proto,
 		Host:   r.Host,
 		Header: r.Header,
