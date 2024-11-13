@@ -75,3 +75,7 @@ localhost:8080 {
 
 - [Embed Static files to Go](examples/static_plugin)
 - Inject OAuth2 Token
+
+# TODO
+
+- Add logger
