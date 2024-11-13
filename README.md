@@ -64,9 +64,14 @@ Load plugin in `Caddyfile`
 
 ```caddyfile
 localhost:8080 {
-    handler_plugin "/caddy-plugins/hanlder.bin" {
+    handler_plugin * "/caddy-plugins/hanlder.bin" {
         name "web handler"
         pass_next_if_not_match false
     }
 }
 ```
+
+# Examples
+
+- [Embed Static files to Go](examples/static_plugin)
+- Inject OAuth2 Token
