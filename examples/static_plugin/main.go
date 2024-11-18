@@ -15,6 +15,7 @@ import (
 
 	"github.com/gsmlg-dev/caddy-handler-plugin/server"
 	"github.com/gsmlg-dev/caddy-handler-plugin/shared"
+	"github.com/hashicorp/go-hclog"
 )
 
 var BuildTime string
@@ -31,6 +32,7 @@ var (
 
 type HandlerServer struct {
 	server.HandlerServerDefault
+	logger     hclog.Logger
 	PassThru   bool
 	IndexNames []string
 	FileSuffix []string
@@ -130,7 +132,13 @@ func (g *HandlerServer) FindFile(p string) (fs.File, error) {
 }
 
 func main() {
+	logger := hclog.New(&hclog.LoggerOptions{
+		Level:      hclog.Trace,
+		Output:     os.Stderr,
+		JSONFormat: true,
+	})
 	handler := &HandlerServer{
+		logger:   logger,
 		PassThru: false,
 	}
 	server.New(handler)
