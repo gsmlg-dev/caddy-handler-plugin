@@ -5,6 +5,7 @@ import (
 	"os/exec"
 
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
+	"go.uber.org/zap"
 
 	"github.com/gsmlg-dev/caddy-handler-plugin/shared"
 	"github.com/hashicorp/go-plugin"
@@ -34,7 +35,23 @@ func (c *HandlerClient) Serve(w http.ResponseWriter, r *http.Request, next caddy
 	return reply.Serve(w, r, next)
 }
 
-func New(path string) (*HandlerClient, error) {
+struct pluginLogger {
+	logger *zap.Logger
+}
+
+func (pl *pluginLogger) Write(p []byte) (n int, err error) {
+	msg := string(p[:])
+	pl.logger.Log(zap.DebugLevel, msg)
+	len(p), nil
+}
+
+func New(path string, zapLogger *zap.Logger) (*HandlerClient, error) {
+	writer = pluginLogger{logger: zapLogger}
+	logger := hclog.New(&hclog.LoggerOptions{
+		Name:   "handler-plugin",
+		Output: writer,
+		Level:  hclog.Debug,
+	})
 
 	var pluginMap = map[string]plugin.Plugin{
 		"handler": &shared.HandlerPlugin{},
@@ -44,6 +61,7 @@ func New(path string) (*HandlerClient, error) {
 		HandshakeConfig: shared.HandshakeConfig,
 		Plugins:         pluginMap,
 		Cmd:             exec.Command(path),
+		Logger:          logger,
 	})
 
 	rpcClient, err := client.Client()
