@@ -15,12 +15,15 @@ import (
     "fmt"
     "net/http"
 
+    "github.com/hashicorp/go-hclog"
+
     "github.com/gsmlg-dev/caddy-handler-plugin/shared"
     "github.com/gsmlg-dev/caddy-handler-plugin/server"
 )
 
 type HandlerServer struct {
-    server.HandlerServerDefault
+  logger hclog.Logger
+  server.HandlerServerDefault
 }
 
 func (g *HandlerServer) Serve(q shared.PluginQuery, reply *shared.PluginReply) error {
@@ -44,8 +47,15 @@ func (g *HandlerServer) Serve(q shared.PluginQuery, reply *shared.PluginReply) e
 }
 
 func main() {
-        handler := &HandlerServer{}
-        server.New(handler)
+  logger := hclog.New(&hclog.LoggerOptions{
+		Level:      hclog.Trace,
+		Output:     os.Stderr,
+		JSONFormat: true,
+	})
+  handler := &HandlerServer{
+    logger: logger,
+  }
+  server.New(handler)
 }
 ```
 

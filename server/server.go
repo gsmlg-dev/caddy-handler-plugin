@@ -4,15 +4,18 @@ import (
 	"net/http"
 
 	"github.com/gsmlg-dev/caddy-handler-plugin/shared"
+	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-plugin"
 )
 
 type HandlerServerDefault struct {
+	logger hclog.Logger
 	Config map[string][]string
 }
 
 func (g *HandlerServerDefault) SetConfig(cfg map[string][]string, ok *bool) error {
 	g.Config = cfg
+	g.logger.Debug("SetConfig", "cfg", cfg)
 	*ok = true
 	return nil
 }
