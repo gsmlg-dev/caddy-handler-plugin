@@ -1,4 +1,4 @@
-# caddy-handler-plugin
+# Caddy Handler Plugin
 
 Build go-plugin for caddy handler
 

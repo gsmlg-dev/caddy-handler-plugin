@@ -8,6 +8,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/gsmlg-dev/caddy-handler-plugin/shared"
+	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-plugin"
 )
 
@@ -35,18 +36,18 @@ func (c *HandlerClient) Serve(w http.ResponseWriter, r *http.Request, next caddy
 	return reply.Serve(w, r, next)
 }
 
-struct pluginLogger {
+type pluginLogger struct {
 	logger *zap.Logger
 }
 
 func (pl *pluginLogger) Write(p []byte) (n int, err error) {
 	msg := string(p[:])
 	pl.logger.Log(zap.DebugLevel, msg)
-	len(p), nil
+	return len(p), nil
 }
 
 func New(path string, zapLogger *zap.Logger) (*HandlerClient, error) {
-	writer = pluginLogger{logger: zapLogger}
+	writer := &pluginLogger{logger: zapLogger}
 	logger := hclog.New(&hclog.LoggerOptions{
 		Name:   "handler-plugin",
 		Output: writer,

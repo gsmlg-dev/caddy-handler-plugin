@@ -87,7 +87,7 @@ func (chp *CaddyHandlerPlugin) loadPlugin() error {
 	} else {
 		chp.logger.Info("handler-plugin loading plugin", zap.String("plugin_path", chp.PluginPath))
 		chp.logger.Debug("handler-plugin loading plugin config", zap.Any("plugin_config", chp.PluginConfig))
-		c, err := client.New(chp.PluginPath, chg.logger)
+		c, err := client.New(chp.PluginPath, chp.logger)
 		if err != nil {
 			return err
 		}
